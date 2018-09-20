@@ -46,9 +46,6 @@ public class NoteEditorActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        NoteEditorFragment noteEditorFragment;
-        NoteMarkdownFragment noteMarkdownFragment;
-
         mNoteEditorFragmentPagerAdapter =
                 new NoteEditorFragmentPagerAdapter(getSupportFragmentManager());
         mViewPager = (NoteEditorViewPager) findViewById(R.id.pager);
@@ -58,52 +55,7 @@ public class NoteEditorActivity extends AppCompatActivity {
         mNoteId = intent.getStringExtra(NoteEditorFragment.ARG_ITEM_ID);
         
         if (savedInstanceState == null) {
-            // Create the note editor fragment
-            Bundle arguments = new Bundle();
-            arguments.putString(NoteEditorFragment.ARG_ITEM_ID, mNoteId);
-
-            boolean isNewNote = intent.getBooleanExtra(NoteEditorFragment.ARG_NEW_NOTE, false);
-            arguments.putBoolean(NoteEditorFragment.ARG_NEW_NOTE, isNewNote);
-            if (intent.hasExtra(NoteEditorFragment.ARG_MATCH_OFFSETS))
-                arguments.putString(NoteEditorFragment.ARG_MATCH_OFFSETS,
-                        intent.getStringExtra(NoteEditorFragment.ARG_MATCH_OFFSETS));
-
-            noteEditorFragment = new NoteEditorFragment();
-            noteEditorFragment.setArguments(arguments);
-            noteMarkdownFragment = new NoteMarkdownFragment();
-            noteMarkdownFragment.setArguments(arguments);
-
-            mNoteEditorFragmentPagerAdapter.addFragment(
-                    noteEditorFragment,
-                    getString(R.string.tab_edit)
-            );
-            mNoteEditorFragmentPagerAdapter.addFragment(
-                    noteMarkdownFragment,
-                    getString(R.string.tab_preview)
-            );
-            mViewPager.setPagingEnabled(false);
-            mViewPager.addOnPageChangeListener(
-                    new NoteEditorViewPager.OnPageChangeListener() {
-                        @Override
-                        public void onPageSelected(int position) {
-                            if (position == 1) {
-                                final InputMethodManager imm = (InputMethodManager) getSystemService(
-                                        Context.INPUT_METHOD_SERVICE);
-                                imm.hideSoftInputFromWindow(mViewPager.getWindowToken(), 0);
-                            }
-                        }
-
-                        @Override
-                        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                        }
-
-                        @Override
-                        public void onPageScrollStateChanged(int state) {
-                        }
-                    }
-            );
-
-            isMarkdownEnabled = intent.getBooleanExtra(NoteEditorFragment.ARG_MARKDOWN_ENABLED, false);
+            createTheNoteEditorFragment(intent);
         } else {
             mNoteEditorFragmentPagerAdapter.addFragment(
                     getSupportFragmentManager().getFragment(savedInstanceState, getString(R.string.tab_edit)),
@@ -124,6 +76,55 @@ public class NoteEditorActivity extends AppCompatActivity {
         if (isMarkdownEnabled) {
             showTabs();
         }
+    }
+
+    private void createTheNoteEditorFragment(Intent intent) {
+        // Create the note editor fragment
+        Bundle arguments = new Bundle();
+        arguments.putString(NoteEditorFragment.ARG_ITEM_ID, mNoteId);
+
+        boolean isNewNote = intent.getBooleanExtra(NoteEditorFragment.ARG_NEW_NOTE, false);
+        arguments.putBoolean(NoteEditorFragment.ARG_NEW_NOTE, isNewNote);
+        if (intent.hasExtra(NoteEditorFragment.ARG_MATCH_OFFSETS))
+            arguments.putString(NoteEditorFragment.ARG_MATCH_OFFSETS,
+                    intent.getStringExtra(NoteEditorFragment.ARG_MATCH_OFFSETS));
+
+        NoteEditorFragment noteEditorFragment = new NoteEditorFragment();
+        noteEditorFragment.setArguments(arguments);
+        NoteMarkdownFragment noteMarkdownFragment = new NoteMarkdownFragment();
+        noteMarkdownFragment.setArguments(arguments);
+
+        mNoteEditorFragmentPagerAdapter.addFragment(
+                noteEditorFragment,
+                getString(R.string.tab_edit)
+        );
+        mNoteEditorFragmentPagerAdapter.addFragment(
+                noteMarkdownFragment,
+                getString(R.string.tab_preview)
+        );
+        mViewPager.setPagingEnabled(false);
+        mViewPager.addOnPageChangeListener(
+                new NoteEditorViewPager.OnPageChangeListener() {
+                    @Override
+                    public void onPageSelected(int position) {
+                        if (position == 1) {
+                            final InputMethodManager imm = (InputMethodManager) getSystemService(
+                                    Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(mViewPager.getWindowToken(), 0);
+                        }
+                    }
+
+                    @Override
+                    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                    }
+
+                    @Override
+                    public void onPageScrollStateChanged(int state) {
+                    }
+                }
+        );
+
+        isMarkdownEnabled = intent.getBooleanExtra(NoteEditorFragment.ARG_MARKDOWN_ENABLED, false);
     }
 
     @Override
